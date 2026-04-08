@@ -1,0 +1,42 @@
+import { VerticalBox } from "std-widgets.slint";
+
+export component Image_Window inherits Window {
+    in-out property <image> mon_image;
+    no-frame: true;
+    always-on-top: true;
+    callback start-drag();
+    width: self.preferred-width;
+    height: self.preferred-height;
+    title: "overlay-image";
+
+    VerticalBox {
+        padding: 0px;
+        spacing: 0px;
+        Image {
+            source: root.mon_image;
+            width: self.preferred-width;
+            height: self.preferred-height;
+        }
+    }
+
+    TouchArea {
+        width: 100%;
+        height: 100%;
+        pointer-event(event) => {
+            if (event.kind == PointerEventKind.down) {
+                root.start-drag();
+            }
+        }
+    }
+}
+
+export component AppWindows2 inherits Window {
+    width: 1000px;
+    height: 800px;
+    title: "overlay-settings";
+
+    VerticalBox {
+        padding: 0px;
+        spacing: 0px;
+    }
+}
