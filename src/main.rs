@@ -11,6 +11,9 @@ fn main() -> Result<(), slint::PlatformError> {
     let overlay = Image_Window::new()?;
     let settings_window = AppWindows2::new()?;
 
+    settings_window.on_transparence_changed(|v: i32| {
+        println!("val: {}", v);
+    });
     let image = Image::load_from_path(
         &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("assets/image.png")
     ).unwrap();
@@ -18,9 +21,9 @@ fn main() -> Result<(), slint::PlatformError> {
     overlay.set_mon_image(image.clone());
     settings_window.set_mon_image(image);
 
-    let overlay_weak = overlay.as_weak();        // référence faible à la fenêtre (évite les cycles mémoire)
+    let overlay_weak: slint::Weak<Image_Window> = overlay.as_weak();        // référence faible à la fenêtre (évite les cycles mémoire)
     overlay.on_start_drag(move || {         // quand le callback start-drag est déclenché depoverlays le .slint
-        let overlay = overlay_weak.unwrap();     // récupère la fenêtre depoverlays la référence faible
+        let overlay: Image_Window = overlay_weak.unwrap();     // récupère la fenêtre depoverlays la référence faible
         overlay.window().with_winit_window(|winit_win: &winit::window::Window| {  // accède au handle winit natif
             winit_win.drag_window().ok();  // dit au OS de déplacer la fenêtre, ignore l'erreur si ça rate
         });
@@ -32,12 +35,13 @@ fn main() -> Result<(), slint::PlatformError> {
         slint::run_event_loop().unwrap();
         slint::CloseRequestResponse::KeepWindowShown
     });
+    
 
     // Délai pour que les fenêtres soient bien affichées avant wmctrl
     std::thread::spawn(|| {
         std::thread::sleep(std::time::Duration::from_millis(500));
         std::process::Command::new("wmctrl")
-            .args(["-a", "overlay-image", "-b", "add,above"])
+            .args(["-a", "overlay-image", "-b", "add,above"]) //commande shell wmctrl ->
             .output()
             .ok();
     });

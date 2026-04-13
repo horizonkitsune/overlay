@@ -8,11 +8,13 @@ export component Image_Window inherits Window {
     width: self.preferred-width;
     height: self.preferred-height;
     title: "overlay-image";
+    background: transparent;
 
     VerticalBox {
         padding: 0px;
         spacing: 0px;
         Image {
+            opacity: 50%;
             source: root.mon_image;
             width: self.preferred-width;
             height: self.preferred-height;
@@ -31,8 +33,20 @@ export component Image_Window inherits Window {
     }
 }
 
+
+struct row {
+    label: string,
+    point: string,
+    value: string,
+}
 export component AppWindows2 inherits Window {
     in-out property <image> mon_image;
+    in-out property <string> HEXA;
+    in-out property <string> HSL;
+    in-out property <string> HSV;
+    in-out property <string> RGB;
+    in-out property <float> Transparence : 10;
+    callback transparence-changed(value : int);
     width: 1200px;
     height: 500px;
     title: "overlay-settings";
@@ -54,69 +68,50 @@ export component AppWindows2 inherits Window {
                 height: 370px;
                 x: 70px;
                 y: 65px;
-                Text {
-                    font-size: 1.2rem;
-                    height: 31px;
-                    text: "Code hexa           : ";
-                    x: 10px;
-                    y: 20px;
-                }
-                Text {
-                    font-size: 1.2rem;
-                    height: 38px;
-                    text: "Code HSL             :";
-                    x: 10px;
-                    y: 65px;
-                }
-                Text {
-                    font-size: 1.2rem;
-                    height: 38px;
-                    text: "Code RGB            :";
-                    x: 10px;
-                    y: 110px;
-                }
-                Text {
-                    font-size: 1.2rem;
-                    height: 38px;
-                    text: "Code HSV            :";
-                    x: 10px;
-                    y: 155px;
-                }
-                Text {
-                    font-size: 1.2rem;
-                    height: 38px;
-                    text: "Afficher image   :";
-                    x: 10px;
-                    y: 200px;
-                }
-                Text {
-                    font-size: 1.2rem;
-                    height: 38px;
-                    text: "Bloquer image   :";
-                    x: 10px;
-                    y: 245px;
-                }
-                Text {
-                    font-size: 1.2rem;
-                    height: 38px;
-                    text: "Transparence     :";
-                    x: 10px;
-                    y: 290px;
+                property <[row]> rows: [
+                    { label: "Code Hexa", point: ":", value: root.HEXA },
+                    { label: "Code HSL", point: ":", value: root.HSL },
+                    { label: "Code HSV", point: ":", value: root.HSV },
+                    { label: "Code RGB", point: ":", value: root.RGB },
+                    { label: "Afficher image", point: ":"},
+                    { label: "Bloquer image", point: ":"},
+                    { label: "Transparence", point: ":", value: root.Transparence },
+                ];
+
+                for row[index] in rows : Rectangle {
+                    Text {
+                        font-size: 1.2rem;
+                        height: 38px;
+                        text: row.label;
+                        x: 10px;
+                        y: 20px + index * 45px;
+                    }
+                    Text {
+                        font-size: 1.2rem;
+                        height: 38px;
+                        text: row.point;
+                        x: 120px;
+                        y: 20px + index * 45px;
+                    }
+                    Text {
+                        font-size: 1.2rem;
+                        height: 38px;
+                        text: row.value;
+                        x: 130px;
+                        y: 20px + index * 45px;
+                    }
                 }
                 Slider {
-                    x: 130px;
+                    x: 160px;
                     y: 290px;
                     width: 150px;
-                    minimum: 0;
-                    value: 50;
+                    minimum: 10;
                     maximum: 100;
-                }
-                Text {
-                    font-size: 1.2rem;
-                    height: 38px;
-                    text: "%";
-                    x: 300px;
-                    y: 290px;
+                    value <=> root.Transparence;
+                    changed => {
+                        root.Transparence = Math.round(self.value);
+                        root.transparence-changed(Math.round(self.value));
+                    }
                 }
             }
             
