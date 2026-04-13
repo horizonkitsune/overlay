@@ -15,7 +15,8 @@ fn main() -> Result<(), slint::PlatformError> {
         &std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("assets/image.png")
     ).unwrap();
 
-    overlay.set_mon_image(image);
+    overlay.set_mon_image(image.clone());
+    settings_window.set_mon_image(image);
 
     let overlay_weak = overlay.as_weak();        // référence faible à la fenêtre (évite les cycles mémoire)
     overlay.on_start_drag(move || {         // quand le callback start-drag est déclenché depoverlays le .slint
